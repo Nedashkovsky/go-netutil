@@ -16,7 +16,7 @@ import (
 var T = flag.Float64("t", 2, "update time(s)")
 var C = flag.Uint("c", 0, "count (0 == unlimit)")
 var Inter = flag.String("i", "*", "interface")
-var U = flag.Float64("u", 99.5, "utilization")
+var U = flag.Float64("u", 99, "utilization")
 
 var verbosity = flag.Int("v", 2, "verbosity")
 
@@ -98,7 +98,6 @@ func getInfo() (ret NetStat) {
 		// c := DevStat{}
 		c.Name = key
 		bw_name := "/sys/class/net/" + key + "/speed"
-//		bw_name := "/sys/class/net/bond0/speed"
 		wb1, _ := ReadLine1(bw_name)
 		r1, err := strconv.ParseInt(wb1, 10, 64)
 		if err != nil {
@@ -119,9 +118,6 @@ func getInfo() (ret NetStat) {
 			break
 		}
 		c.Tx = uint64(t)
-//		if c.BW != 0 {
-//			c.Out = (( c.Tx * 8 ) / ( c.BW * 1000000 )) * 100
-//		}
 		
 		ret.Dev = append(ret.Dev, key)
 		ret.Stat[key] = c
@@ -166,7 +162,6 @@ func main() {
 		fmt.Printf("\033c")
 	}
 	fmt.Printf("iface\t%-10s\tTx\n", "Rx")
-//	fmt.Println(util)
 	for {
 
 		elapsed = time.Since(start)
@@ -204,18 +199,13 @@ func main() {
 			if multi > 1 {
 				if stat.BW != 0 {
 				result1 := Vsize1(stat.Tx, *T, stat.BW, util)
-//				fmt.Println(result1)
-//				fmt.Println(Vsize1(stat.Tx, *T, stat.BW))
 				fmt.Printf("%v\t%v\t%v\t%v\t%v\n", iface, Vsize(stat.Rx, *T), Vsize(stat.Tx, *T), stat.BW, result1)
-//				fmt.Printf("%v\t%v\t%v\t%v\t%v\n", iface, Vsize(stat.Rx, *T), Vsize(stat.Tx, *T), stat.BW, stat.Out)
 //				hc_file(result1)
 				}
 			} else {
 				if stat.BW != 0 {
 				result1 := Vsize1(stat.Tx, *T, stat.BW, util)
-//				fmt.Println(result1)
 				fmt.Printf("\r%v\t%v\t%v\t%v\t%v", iface, Vsize(stat.Rx, *T), Vsize(stat.Tx, *T), stat.BW, result1)
-//				fmt.Printf("\r%v\t%v\t%v\t%v\t%v", iface, Vsize(stat.Rx, *T), ize(stat.Tx, *T), stat.BW, stat.Out)
 				hc_file(result1, name, uid, gid)
 				}
 			}
@@ -277,12 +267,10 @@ func Vsize1(bytes uint64, delta float64, bw uint64, util float64) (ret string) {
         }
         
         ret = fmt.Sprintf("%s %6.2f", control, percent)
-//	ret = fmt.Sprintf("%s", control)
         return ret
 }
 
 func hc_file(hc, name string, uid, gid int) (err error) {
-//    fo, err := os.Create("/opt/trafficserver/etc/trafficserver/healthchecks.bandwith")
     fo, err := os.Create(name)
     if err != nil {
         panic(err)
